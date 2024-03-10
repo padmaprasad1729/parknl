@@ -69,4 +69,12 @@ public class ParkingMonitorService {
         return (datetimeOfObservation.isAfter(parkingDetails.getStarted()) || datetimeOfObservation.isEqual(parkingDetails.getStarted()))
                 && (datetimeOfObservation.isEqual(parkingDetails.getStopped()) || datetimeOfObservation.isBefore(parkingDetails.getStopped()));
     }
+
+    public void clearMonitoredDataDB() {
+        parkingMonitorRepository.deleteAll();
+    }
+
+    public void clearParkingDetailsDB() {
+        parkingDetailsRepository.deleteWhenCostIsGreaterThanZero();
+    }
 }
