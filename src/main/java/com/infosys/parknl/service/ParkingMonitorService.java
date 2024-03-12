@@ -54,11 +54,11 @@ public class ParkingMonitorService {
         List<ParkingDetailsDAO> parkingDetailsList = parkingDetailsRepository.findAll();
 
         return monitoredDataList.stream()
-                .filter(monitoredData -> isPlateAndStreetUnregistered(monitoredData, parkingDetailsList))
+                .filter(monitoredData -> isPlateInStreetUnregistered(monitoredData, parkingDetailsList))
                 .collect(Collectors.toList());
     }
 
-    boolean isPlateAndStreetUnregistered(ParkingMonitorDAO monitoredData, List<ParkingDetailsDAO> parkingDetailsList) {
+    boolean isPlateInStreetUnregistered(ParkingMonitorDAO monitoredData, List<ParkingDetailsDAO> parkingDetailsList) {
         return parkingDetailsList.stream()
                 .noneMatch(p -> (monitoredData.getLicensePlateNumber().equals(p.getLicensePlateNumber())
                         && monitoredData.getParkingStreet().equals(p.getParkingStreet()))

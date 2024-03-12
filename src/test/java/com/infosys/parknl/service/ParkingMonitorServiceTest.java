@@ -86,7 +86,7 @@ public class ParkingMonitorServiceTest {
         List<ParkingDetailsDAO> parkingDetailsList = Collections.singletonList(matchingParkingDetails);
 
         // Act & Assert
-        assertTrue(parkingMonitorService.isPlateAndStreetUnregistered(monitoredData, parkingDetailsList));
+        assertTrue(parkingMonitorService.isPlateInStreetUnregistered(monitoredData, parkingDetailsList));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ParkingMonitorServiceTest {
         List<ParkingDetailsDAO> parkingDetailsList = Collections.singletonList(matchingParkingDetails);
 
         // Act & Assert
-        assertTrue(parkingMonitorService.isPlateAndStreetUnregistered(monitoredData, parkingDetailsList));
+        assertTrue(parkingMonitorService.isPlateInStreetUnregistered(monitoredData, parkingDetailsList));
     }
 
     @Test

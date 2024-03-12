@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.env.Environment;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,9 +32,6 @@ public class ParkingServiceTest {
     @Mock
     private SequenceGeneratorService seqService;
 
-    @Mock
-    private Environment environment;
-
     @InjectMocks
     private ParkingServiceImpl parkingService;
 
@@ -46,13 +42,28 @@ public class ParkingServiceTest {
         when(seqService.generateSequence(any())).thenReturn(1L);
         when(repo.findByLicensePlateNumber("TD-210-J")).thenReturn(Collections.emptyList());
         when(streetService.getStreetOrFailOnEmpty("Java")).thenReturn(getStreetDetailsDAO());
-        when(environment.getProperty("spring.active.profiles")).thenReturn("test");
         // Act
         String result = parkingService.register(registerDTO);
 
         // Assert
         assertNotNull(result);
         verify(repo, times(1)).save(any());
+    }
+
+
+    @Test
+    public void testRegister_parkedSomewhereElse() {
+        // Arrange
+        RegisterDTO registerDTO = getRegisterDTO();
+        ParkingDetailsDAO parkingDetailsDAO = ParkingDetailsDAO.builder()
+                .parkingStreet("Java")
+                .build();
+        parkingDetailsDAO.setStarted(LocalDateTime.now().minusHours(1));
+        when(repo.findByLicensePlateNumber("TD-210-J")).thenReturn(Collections.singletonList(parkingDetailsDAO));
+        when(streetService.getStreetOrFailOnEmpty("Java")).thenReturn(getStreetDetailsDAO());
+
+        // Act & Assert
+        assertThrows(RegistrationNotPossibleException.class, () -> parkingService.register(registerDTO));
     }
 
     private RegisterDTO getRegisterDTO() {
@@ -93,26 +104,6 @@ public class ParkingServiceTest {
     }
 
     @Test
-    public void testRegister_FreeParkingOnSunday() {
-        // Arrange
-        RegisterDTO registerDTO = getRegisterDTO();
-        when(repo.findByLicensePlateNumber("TD-210-J")).thenThrow(new RegistrationNotPossibleException("Parking is free on Sunday"));
-
-        // Act & Assert
-        assertThrows(RegistrationNotPossibleException.class, () -> parkingService.register(registerDTO));
-    }
-
-    @Test
-    public void testRegister_FreeParkingBetween21And8() {
-        // Arrange
-        RegisterDTO registerDTO = getRegisterDTO();
-        when(repo.findByLicensePlateNumber("TD-210-J")).thenThrow(new RegistrationNotPossibleException("Parking is free from 21:00 to 8:00"));
-
-        // Act & Assert
-        assertThrows(RegistrationNotPossibleException.class, () -> parkingService.register(registerDTO));
-    }
-
-    @Test
     public void testUnregister() {
         // Arrange
         UnRegisterDTO unRegisterDTO = getUnRegisterDTO();
@@ -120,6 +111,25 @@ public class ParkingServiceTest {
                 .parkingStreet("Java")
                 .build();
         parkingDetailsDAO.setStarted(LocalDateTime.now().minusHours(1));
+        when(repo.findByLicensePlateNumber("TD-210-J")).thenReturn(Collections.singletonList(parkingDetailsDAO));
+        when(streetService.findByStreetName(anyString())).thenReturn(getStreetDetails());
+
+        // Act
+        String result = parkingService.unregister(unRegisterDTO);
+
+        // Assert
+        assertNotNull(result);
+        verify(repo, times(1)).save(any(ParkingDetailsDAO.class));
+    }
+
+    @Test
+    public void testUnregister_withZeroCost() {
+        // Arrange
+        UnRegisterDTO unRegisterDTO = getUnRegisterDTO();
+        ParkingDetailsDAO parkingDetailsDAO = ParkingDetailsDAO.builder()
+                .parkingStreet("Java")
+                .build();
+        parkingDetailsDAO.setStarted(LocalDateTime.now());
         when(repo.findByLicensePlateNumber("TD-210-J")).thenReturn(Collections.singletonList(parkingDetailsDAO));
         when(streetService.findByStreetName(anyString())).thenReturn(getStreetDetails());
 
@@ -151,5 +161,4 @@ public class ParkingServiceTest {
         assertThrows(UnRegistrationNotPossibleException.class, () -> parkingService.unregister(unRegisterDTO));
     }
 
-    // Add more tests for other scenarios and methods as needed
 }
