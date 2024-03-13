@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -35,7 +36,7 @@ public class ParkingController {
                             value = "{\"message\": \"PARKING HAS STARTED AT 2024-03-10T18:48:10 \"}")
             }, mediaType = MediaType.APPLICATION_JSON_VALUE))})
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterDTO parkingDetails) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterDTO parkingDetails) {
         String response = parkingService.register(parkingDetails);
         return ResponseEntity.ok(response);
     }

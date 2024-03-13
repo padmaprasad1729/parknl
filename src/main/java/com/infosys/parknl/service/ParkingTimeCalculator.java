@@ -33,46 +33,59 @@ public class ParkingTimeCalculator {
         LocalTime zeroTime = LocalTime.of(0, 0);
         long numberOfDays = Duration.between(LocalDateTime.of(startDate, zeroTime), LocalDateTime.of(endDate, zeroTime)).toDays();
 
+        // calculate minutes for each day
         for (int i = 0; i <= numberOfDays; i++) {
 
             startDate = startDate.plusDays(i);
 
-            // startTime
+            // START TIME CALCULATION
+
+            // for non-first day, startTime is eightAm
             if (i != 0) {
                 startTime = eightAm;
             }
 
+            // skip sunday
             if (startDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
                 continue;
             }
 
+            // startTime less than 8 am, then startTime < 8am
             if (isLT(startTime, eightAm)) {
                 startTime = eightAm;
             }
 
+            // skip startTime > 9pm
             if (isGTE(startTime, ninePm)) {
                 continue;
             }
 
-            // endTime
+            // END TIME CALCULATION
+
+            // for last day endTime is the endDateTime's time
             if (i == numberOfDays) {
                 endTime = endDateTime.toLocalTime();
             }
 
+            // for last day
             if (startDate.isEqual(endDate)) {
 
+                // skip endTime <= 8am
                 if (isLTE(endTime, eightAm)) {
                     continue;
                 }
 
+                // endTime > 8am, then endTime is the endDateTime's time
                 if (isGT(endTime, eightAm)) {
                     endTime = endDateTime.toLocalTime();
                 }
 
+                // endTime >= 9pm, then endTime is ninePm
                 if (isGTE(endTime, ninePm)) {
                     endTime = ninePm;
                 }
             } else {
+                // for non-last day endTime is ninePm
                 endTime = ninePm;
             }
 

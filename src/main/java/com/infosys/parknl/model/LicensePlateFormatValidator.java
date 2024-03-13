@@ -3,6 +3,7 @@ package com.infosys.parknl.model;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.Payload;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -15,8 +16,11 @@ public @interface LicensePlateFormatValidator {
 
     String message() default "Invalid License Number ";
 
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+
     class Validator implements ConstraintValidator<LicensePlateFormatValidator, String> {
-        private static final String LICENSE_REGEX = "[A-Z][A-Z]([A-Z]|\\d)\\d\\d";
+        private static final String LICENSE_REGEX = "[A-Z][A-Z]-([A-Z]|\\d)|\\d|-([A-Z]|\\d)";
         private String message;
 
         @Override
@@ -24,6 +28,7 @@ public @interface LicensePlateFormatValidator {
             this.message = requiredIfChecked.message();
         }
 
+        @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
             boolean valid = this.isValidLicenseNumber(value);
 
